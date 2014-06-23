@@ -1,50 +1,49 @@
 #!/bin/bash
 
-ACCESS=`head -n 1 ./ftp.conf`
-HOST=`tail -n 1 ./ftp.conf`
+ ACCESS=`head -n 1 conf/ftp.conf`
+ HOST=`tail -n 1 conf/ftp.conf`
 
-hotglueContent=hotglue/content/test1/head
+ HOTGLUECONTENT=hotglue/content/test1/head
 
+ YPOS=50
+ WIDTH=550
+ HEIGHT=0
 
-YPOS=50
-WIDTH=550
-HEIGHT=0
+ TMPDIR=tmp
+ rm $TMPDIR/*.md
 
-TMPDIR=tmp
-rm $TMPDIR/*.md
-echo "delete $hotglueContent/1*" >> ftp.temp
-
-
-PADDUMP=pad.md
-PADURL=http://note.pad.constantvzw.org:8000/p/interviews.tools-of-the-trade/export/txt
-PADHTML=pad.html
-wget --no-check-certificate -O $PADDUMP  $PADURL
-
-#pandoc pad.md -f markdown -t html -s -o pad.html
-#cat $PADDUMP | grep -v ^% | pandoc -r markdown -w html >> $PADHTML
-
-#grep "% NOWSPEAKING:" pad.md | cut -d ":"  -f2 |  sed 's/ //g'| sort | uniq 
-
-  echo "$ACCESS" >ftp.temp
+ echo "$ACCESS" >ftp.temp
+ echo "delete $hotglueContent/1*" >> ftp.temp
 
 
-FILE=1000
-if [ -f $FILE ]; then rm $FILE ; fi
+ PADDUMP=pad.md
+ PADURL=http://note.pad.constantvzw.org:8000/p/interviews.tools-of-the-trade/export/txt
+ PADHTML=pad.html
+
+ wget --no-check-certificate -O $PADDUMP  $PADURL
+
+# pandoc pad.md -f markdown -t html -s -o pad.html
+# cat $PADDUMP | grep -v ^% | pandoc -r markdown -w html >> $PADHTML
+
+# grep "% NOWSPEAKING:" pad.md | cut -d ":"  -f2 |  sed 's/ //g'| sort | uniq 
+
+
+ FILE=1000
+ if [ -f $FILE ]; then rm $FILE ; fi
 
 
 
 
-for LINE in `cat $PADDUMP | sed 's/ /djqteDF34/g'`
-do
+
+ for LINE in `cat $PADDUMP | sed 's/ /djqteDF34/g'`
+  do
  
- 
- 
- LINE=`echo $LINE | sed 's/djqteDF34/ /g' | sed -e 's/<blockquote>/<i>/' -e 's/<\/blockquote>/<\/i>/' -e 's/<strong>/<b>/' -e 's/<\/i>\n<\/p>/<\/i><\/p>/' -e 's/<\/p>\n<i>/<p><i>/' -e 's/<\/strong>/<\/b>/'  -e 's/ % ---------------------------- /\n/'  -e 's//n\//'`
- CHECK=$(echo "$LINE" |grep "% NOWSPEAKING:" | wc -l )
+     LINE=`echo $LINE | sed 's/djqteDF34/ /g'`
+     CHECK=$(echo "$LINE" |grep "% NOWSPEAKING:" | wc -l )
 
 
-  if [ $CHECK -gt 0 ]
-  then
+      if [ $CHECK -gt 0 ]
+       then
  	
 YPOS=$(python -c "print ${YPOS}+${HEIGHT}-40")
 NBRCARAC=$(wc -m < "$FILE")
