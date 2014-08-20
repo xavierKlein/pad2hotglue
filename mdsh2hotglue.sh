@@ -1,5 +1,9 @@
 #!/bin/bash
 
+  MAINURL=http://www.lafkon.net/xk/hotglue/
+
+  PADNAMEURL=CompteRenduMarathonTypoLibre2
+
   FUNCTIONS=i/sh/hotglue.functions
   source $FUNCTIONS
 
@@ -7,12 +11,30 @@
   EMPTYLINE="EMPTY-LINE-EMPTY-LINE-EMPTY-LINE-TEMPORARY-NOT"
 
   PADDUMP=$TMPDIR/pad.md
-  PADURL=http://note.pad.constantvzw.org:8000/p/interviews.tools-of-the-trade/export/txt
+  PADURL=http://lite4.framapad.org/p/CompteRenduMarathonTypoLibre2/export/txt
   PADHTML=$TMPDIR/pad.html
+
+  #PADINFODUMP=$TMPDIR/padinfo.md
+  #PADINFOURL=http://note.pad.constantvzw.org:8000/p/conversations.informations/export/txt
+
+  #PADGLOBAL2DUMP=$TMPDIR/padglobal2.md
+  #PADGLOBAL2URL=http://note.pad.constantvzw.org:8000/p/conversations/export/txt
+
+
+
+
+
+# COPY THE GENERAL HEADER
+# --------------------------------------------------------------------------- #
+  #cp i/canvas/*.box tmp/
+
 
 # DOWNLOAD THE PAD
 # --------------------------------------------------------------------------- #
   wget --no-check-certificate -O $PADDUMP $PADURL
+  #wget --no-check-certificate -O $PADINFODUMP $PADINFOURL
+  #wget --no-check-certificate -O $PADGLOBAL2DUMP $PADGLOBAL2URL
+
 
 # MODIFY STRUCTURE
 # --------------------------------------------------- #
@@ -36,7 +58,7 @@
   XPOSSTANDARD=50
   WIDTHSTANDARD=550
 
-  XPOS=$XPOSSTANDARD ; YPOS=0 ; WIDTH=$WIDTHSTANDARD ;  HEIGHT=0
+  XPOS=$XPOSSTANDARD ; YPOS=210 ; WIDTH=$WIDTHSTANDARD ;  HEIGHT=0
 
 # COLORSTANDARD="255,255,255"
   BOXCOLORSTANDARD="none"
@@ -54,23 +76,102 @@
   FOOTNOTEPOS=0
  YFOOTNOTEPOS=0
 
+  IMGNAME=0
+
+
+ # --------------------------------------------------------------------------- #
+ # MAKE THE SPEAKERS PRESENTATION
+ # --------------------------------------------------------------------------- #
+
+  # --------------------------------------------------- #
+  # GET THE INITIALS OF THE SPEAKERS
+ #`grep "% NOWSPEAKING:" $PADDUMP | cut -d ":" -f2 | sort | uniq  |\
+ # sed  's/ //' | sed  '/^$/d'                              >$TMPDIR/SPEAKERLIST`
+
+
+
+
+  #MENULOOP1
+  #LASTYPOS1=`cat $LASTPOSY`
+  #echo "Last position for part1:$LASTYPOS1"
+
+  #MENULOOP2 $LASTYPOS1
+  #LASTYPOS1=`cat $LASTPOSY`
+  #echo "Last position for part2:$LASTYPOS1"
+
+  #MENULOOP3 $LASTYPOS1
+  #LASTYPOS1=`cat $LASTPOSY`
+  #echo "Last position for part3:$LASTYPOS1"
+
+  #HEADER $LASTYPOS1
+
+
+
+
+
+ # --------------------------------------------------- #
+ # LOOP FOR MAKE EACH BOXES
+  # cat $TMPDIR/SPEAKERLIST |{ while read INITIAL
+  # do
+
+  # if [ "$INITIAL" = "X" ]
+    # then
+    # continue
+  # fi
+
+  # YPOS=`expr $YPOS + 20`
+  # echo  "Les initiaux sont $INITIAL"
+
+  # WHO $INITIAL $YPOS
+  # done
+
+
+ # --------------------------------------------------- #
+ # LOOP FOR MAKING EACH URL CLICKABLE
+  NOMBEROFLINK=`grep -o -c  http.* tmp/pad.md`
+
+
+  for ((i=1 ; i<=$NOMBEROFLINK ; i=i+1))
+   do
+   LINK=`grep -o -m$i http.* tmp/pad.md | tail -n1`
+   STOPLINK=`grep  -m$i http.* tmp/pad.md |tail -1|cut -d ":" -f1`
+   #sed "s/$Vd/<a href=$Vd>$Vd<\/a>/g"
+   if [ "$STOPLINK" == "% WWWGRAFIK" ]
+     then
+     continue
+   else
+   grep $LINK tmp/pad.md | sed -i "s|$LINK|<a href=\"$LINK\" target=\"_blank\">Lien</a>|g" tmp/pad.md
+   fi
+
+  done
+
+
+
+
 
 # --------------------------------------------------------------------------- #
 # PARSE MDSH AND SPLIT THE CONTENT IN SEPARATE PARTS FOR SPEAKERS
 # --------------------------------------------------------------------------- #
   FILENAME=4000100
   FILE=$TMPDIR/$FILENAME
+
+
+
   if [ -f $FILE ]; then rm $FILE ; fi
 
+
   for LINE in `cat $PADDUMP | sed -e 's/ /djqteDF34/g'`
-   do  
+   do
      # RESTORE SPACES ON CURRENT LINE
        LINE=`echo $LINE | sed 's/djqteDF34/ /g'`
 
-     # --------------------------------------------------- #  
+       IMGNAME=`expr $IMGNAME + 1`
+
+
+     # --------------------------------------------------- #
      # CHECK IF LINE STARTS WITH A %
        ISCMD=`echo $LINE | grep ^% | wc -l`
-     # --------------------------------------------------- # 
+     # --------------------------------------------------- #
      # IF LINE STARTS WITH A %
        if [ $ISCMD -ge 1 ]; then
 
@@ -79,21 +180,21 @@
                cut -d ":" -f 1 | \
                sed 's, ,,g'`
           ARG=`echo $LINE | cut -d ":" -f 2-`
-     # --------------------------------------------------- # 
+     # --------------------------------------------------- #
      # CHECK IF COMMAND EXISTS
 
           CMDEXISTS=`grep "^function ${CMD}()" $FUNCTIONS |\
                      wc -l`
-     # --------------------------------------------------- # 
-     # IF COMMAND EXISTS 
+     # --------------------------------------------------- #
+     # IF COMMAND EXISTS
        if [ $CMDEXISTS -ge 1 ]; then
           # EXECUTE COMMAND
             $CMD $ARG
        fi
-     # --------------------------------------------------- # 
+     # --------------------------------------------------- #
      # IF LINE DOES NOT START WITH % (= SIMPLE MARKDOWN)
        else
-     # --------------------------------------------------- # 
+     # --------------------------------------------------- #
      # APPEND LINE TO HOTGLUE FILE
        echo "$LINE" | \
        sed "s/^$/jdsN36Fgc/g" | \
@@ -101,19 +202,30 @@
        sed -e 's/<blockquote>/<i>/' -e 's/<\/blockquote>/<\/i>/' \
            -e 's/<strong>/<b>/' -e 's/<\/strong>/<\/b>/' \
            -e 's/<p>//g' -e 's/<\/p>//g' \
+           -e 's/<em>/<b>/g' -e 's/<\/em>/<\/b>/g' \
        >> ${FILE}.dump
        fi
      # --------------------------------------------------- #
-      
-   done
+
+
+
+
+
+ done
+
+
+
+
 # --------------------------------------------------------------------------- #
 # FLUSH (EXECUTE A LAST TIME THE NOWSPEAKING COMMAND)
   NOWSPEAKING
 # CLEAN UP
-  rm $TMPDIR/*.dump $TMPDIR/*.md
+   #rm $TMPDIR/*.dump $TMPDIR/*.md
 
 
-
+#sed -i "s/^object-height:.*$/object-height:${FULLHEIGHT}px/" $TMPDIR/strokeV.box
+#sed -i "s/HH/H/" $TMPDIR/*.box
+#sed -i "s/ALA/AL/" $TMPDIR/*.box
 
 
 
@@ -123,14 +235,20 @@
 
 
 # --------------------------------------------------------------------------- #
-# UPLOAD TO AN EXISTING HOTGLUE INSTALLATION 
+# UPLOAD TO AN EXISTING HOTGLUE INSTALLATION
 # --------------------------------------------------------------------------- #
 
-  CANVASNAME=lafuente2
+  if [ "$PADNAMEURL" == "fsnelting+mfuller" ]
+    then
+    PADNAMEURL=fsnelting-mfuller
+  fi
+
+  echo  "$PADNAMEURL"
+  CANVASNAME=$PADNAMEURL
 
   HOTGLUEBASE=hotglue/content
   HOTGLUECONTENT=$HOTGLUEBASE/$CANVASNAME/head
-
+  HOTGLUESHARED=$HOTGLUEBASE/$CANVASNAME/shared
 
   ACCESS=`head -n 1 conf/ftp.conf`
     HOST=`tail -n 1 conf/ftp.conf`
@@ -143,7 +261,6 @@
 # LOGIN DATA
 # --------------------------------------------------------------------------- #
   echo "$ACCESS"                                                   >  $FTPTMP
-
 # RECURSIVELY CREATE DIRECTORIES
 # --------------------------------------------------------------------------- #
   for MAKEDIR in `echo $HOTGLUECONTENT | sed 's,/,\n,g' | \
@@ -151,13 +268,26 @@
    do
       MAKEDIR=$MADEDIR/$MAKEDIR
       echo "mkdir $HOTGLUEBASE$MAKEDIR"                            >> $FTPTMP
-      echo "chmod 777 $HOTGLUEBASE$MAKEDIR"                        >> $FTPTMP		
+      echo "chmod 777 $HOTGLUEBASE$MAKEDIR"                        >> $FTPTMP
       MADEDIR=$MAKEDIR
   done
 
+  for MAKEDIR2 in `echo $HOTGLUESHARED | sed 's,/,\n,g' | \
+              tail -2`
+   do
+      MAKEDIR2=$MADEDIR2/$MAKEDIR2
+      echo "mkdir $HOTGLUEBASE$MAKEDIR2"                            >> $FTPTMP
+      echo "chmod 777 $HOTGLUEBASE$MAKEDIR2"                        >> $FTPTMP
+      MADEDIR2=$MAKEDIR2
+  done
+
+
+
+
 # CLEAR GENERATED FILES ONLINE
 # --------------------------------------------------------------------------- #
-  echo "mdelete $HOTGLUECONTENT/4*"                                >> $FTPTMP
+  echo "mdelete $HOTGLUECONTENT/*"                                >> $FTPTMP
+
 
 # UPLOAD FILES
 # --------------------------------------------------------------------------- #
@@ -167,8 +297,21 @@
     # UPLOAD VIA FTP (CONTROL FILE USED LATER)
       echo "put $BOX $HOTGLUECONTENT/${HOTGLUEFILE}"               >> $FTPTMP
     # CHMOD TO MAKE EDITABLE VIA HOTGLUE/BROWSER
-      echo "chmod 666 $HOTGLUECONTENT/${HOTGLUEFILE}"              >> $FTPTMP		
+      echo "chmod 666 $HOTGLUECONTENT/${HOTGLUEFILE}"              >> $FTPTMP
   done
+
+  for IMGS in `ls $TMPDIR/IMG-*.*`
+   do
+      HOTGLUEIMG=`basename $IMGS | cut -d "-" -f 2`
+    # UPLOAD VIA FTP (CONTROL FILE USED LATER)
+      echo "put $IMGS $HOTGLUESHARED/${HOTGLUEIMG}"               >> $FTPTMP
+      echo "put $IMGS $HOTGLUESHARED/${HOTGLUEIMG}"
+
+    # CHMOD TO MAKE EDITABLE VIA HOTGLUE/BROWSER
+      echo "chmod 666 $HOTGLUESHARED/${HOTGLUEIMG}"              >> $FTPTMP
+  done
+
+
 
 # EXIT COMMAND
 # --------------------------------------------------------------------------- #
@@ -178,12 +321,10 @@
 # --------------------------------------------------------------------------- #
   ftp -i -p -n $HOST  < $FTPTMP
   rm $FTPTMP
-
+  rm $TMPDIR/*
 
 
 
 
 
 exit 0;
-
-
